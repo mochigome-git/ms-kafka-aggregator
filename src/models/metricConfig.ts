@@ -20,8 +20,6 @@ export async function loadMetricConfigs(): Promise<MetricConfig[]> {
     .eq("is_active", true)
     .eq("method", "fast");
 
-  console.log(data);
-
   if (error) {
     logger.error(`Failed to load metric configs: ${error.message}`);
     return [];

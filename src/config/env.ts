@@ -7,4 +7,8 @@ export const ENV = {
   KAFKA_BROKER: process.env.KAFKA_BROKER!,
   KAFKA_TOPIC: process.env.KAFKA_TOPIC!,
   KAFKA_CA_CERT_PATH: process.env.KAFKA_CA_CERT_PATH!,
+
+  // Build PostgreSQL connection string from individual parts
+  SUPABASE_CA_CERT: process.env.SUPABASE_CA_CERT!,
+  SUPABASE_DB_URL: `postgresql://${process.env.SUPABASE_DB_USER}:${process.env.SUPABASE_DB_PASSWORD}@${process.env.SUPABASE_DB_HOST}:${process.env.SUPABASE_DB_PORT}/${process.env.SUPABASE_DB_NAME}`,
 };
