@@ -1,20 +1,13 @@
-import dayjs from "dayjs";
-
+/**
+ * Helper: calculate bucket start
+ */
 export function calculateBucketStart(
-  datetime: string,
-  level: string | null
-): string {
-  const d = dayjs(datetime);
-  switch (level) {
-    case "second":
-      return d.startOf("second").toISOString();
-    case "minute":
-      return d.startOf("minute").toISOString();
-    case "hour":
-      return d.startOf("hour").toISOString();
-    case "day":
-      return d.startOf("day").toISOString();
-    default:
-      return d.toISOString();
-  }
+  timestamp: string | Date,
+  bucketLevel: string,
+  intervalSeconds: number
+): Date {
+  const date = new Date(timestamp);
+  const bucketMs = intervalSeconds * 1000;
+  const bucketStartMs = Math.floor(date.getTime() / bucketMs) * bucketMs;
+  return new Date(bucketStartMs);
 }

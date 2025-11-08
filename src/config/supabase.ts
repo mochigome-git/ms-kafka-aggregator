@@ -4,7 +4,13 @@ import { ENV } from "./env";
 import { Pool, PoolConfig } from "pg";
 import fs from "fs";
 
-export const supabase = createClient(ENV.SUPABASE_URL, ENV.SUPABASE_KEY);
+export const supabase = createClient(ENV.SUPABASE_URL, ENV.SUPABASE_KEY, {
+  realtime: {
+    params: {
+      eventsPerSecond: 10,
+    },
+  },
+});
 
 const poolConfig: PoolConfig = {
   connectionString: ENV.SUPABASE_DB_URL,

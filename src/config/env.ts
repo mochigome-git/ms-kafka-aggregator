@@ -11,4 +11,7 @@ export const ENV = {
   // Build PostgreSQL connection string from individual parts
   SUPABASE_CA_CERT: process.env.SUPABASE_CA_CERT!,
   SUPABASE_DB_URL: `postgresql://${process.env.SUPABASE_DB_USER}:${process.env.SUPABASE_DB_PASSWORD}@${process.env.SUPABASE_DB_HOST}:${process.env.SUPABASE_DB_PORT}/${process.env.SUPABASE_DB_NAME}`,
+
+  // Log
+  LOG_SUMMARY_TIMER: Number(process.env.LOG_SUMMARY_TIMER),
 };

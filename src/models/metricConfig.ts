@@ -9,31 +9,44 @@ export interface MetricConfig {
   interval_seconds: number;
   bucket_level: "second" | "minute" | "hour" | "day" | null;
   is_active: boolean;
+  created_at?: string;
+  updated_at?: string;
 }
 
 let cache: MetricConfig[] = [];
+let lastLoaded: Date | null = null;
 
 export async function loadMetricConfigs(): Promise<MetricConfig[]> {
-  const { data, error } = await supabase
-    .from("metric_method_config")
-    .select("*")
-    .eq("is_active", true)
-    .eq("method", "fast");
+  try {
+    const { data, error } = await supabase
+      .from("metric_method_config")
+      .select("*")
+      .eq("is_active", true)
+      .eq("method", "fast")
+      .order("tenant_id")
+      .order("entity_id");
 
-  if (error) {
-    logger.error(`Failed to load metric configs: ${error.message}`);
-    return [];
+    if (error) {
+      throw new Error(`Database error: ${error.message}`);
+    }
+
+    cache = data || [];
+    lastLoaded = new Date();
+
+    logger.info(`Loaded ${cache.length} active metric configurations`);
+    return cache;
+  } catch (error) {
+    logger.error("Failed to load metric configs:", error);
+    // Return cached data as fallback
+    return cache;
   }
-
-  cache = data;
-  return data;
 }
 
-export async function reloadConfig() {
+export async function reloadConfig(): Promise<void> {
   logger.info("Reloading metric configurations...");
-  cache = await loadMetricConfigs();
+  await loadMetricConfigs();
 }
 
 export function getConfigs(): MetricConfig[] {
-  return cache;
+  return [...cache]; // Return copy to prevent mutation
 }

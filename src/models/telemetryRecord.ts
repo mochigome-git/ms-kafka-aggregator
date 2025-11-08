@@ -6,7 +6,7 @@ export interface TelemetryRecord {
   created_at: string;
   core_1: number;
   core_2: number;
-  core_3?: number;
+  core_3: number;
   data?: Record<string, any>;
   lot_id?: string;
 }
