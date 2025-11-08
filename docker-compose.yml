@@ -4,9 +4,6 @@ services:
     container_name: ms-kafka-aggregator
     env_file:
       - .env
-    environment:
-      SUPABASE_CA_CERT: /certs/db.crt
-      KAFKA_CA_CERT_PATH: /certs/ca.crt
     volumes:
       - ./certs:/certs:ro
     restart: unless-stopped

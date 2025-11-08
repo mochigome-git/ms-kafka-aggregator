@@ -1,5 +1,5 @@
-import fs from "fs";
-import dotenv from "dotenv";
+const fs = require("fs");
+const dotenv = require("dotenv");
 
 dotenv.config();
 const envPath = ".env";
@@ -16,13 +16,11 @@ const envLines = fs.readFileSync(envPath, "utf8").split("\n");
 let appVersion = process.env.APP_VERSION || pkg.version;
 appVersion = bumpVersion(appVersion);
 
-// update .env
 const updatedEnv = envLines.map((line) =>
   line.startsWith("APP_VERSION=") ? `APP_VERSION=${appVersion}` : line
 );
 fs.writeFileSync(envPath, updatedEnv.join("\n"));
 
-// update package.json
 pkg.version = appVersion;
 fs.writeFileSync(pkgPath, JSON.stringify(pkg, null, 2));
 

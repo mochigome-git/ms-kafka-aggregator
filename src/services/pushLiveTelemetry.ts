@@ -11,9 +11,10 @@ export function pushLiveTelemetry(
   if (!config.is_active || records.length === 0) return;
 
   const interval = config.interval_seconds || 10;
-  if (!liveBuffers.has(config.method))
-    liveBuffers.set(config.method, new Map());
-  const buffer = liveBuffers.get(config.method)!;
+  const bufferKey = String(config.id);
+
+  if (!liveBuffers.has(bufferKey)) liveBuffers.set(bufferKey, new Map());
+  const buffer = liveBuffers.get(bufferKey)!;
 
   for (const r of records) {
     const bucketStart = new Date(

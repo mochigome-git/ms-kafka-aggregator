@@ -1,5 +1,5 @@
 import type { TelemetryRecord } from "../models/telemetryRecord";
-import fs from "fs";
+
 import { Kafka } from "kafkajs";
 import { ENV } from "../config/env";
 import { logger } from "../utils/logger";
@@ -14,7 +14,7 @@ const kafka = new Kafka({
   clientId: "telemetry-aggregator",
   ssl: {
     rejectUnauthorized: false,
-    ca: [fs.readFileSync(ENV.KAFKA_CA_CERT_PATH, "utf-8")],
+    ca: ENV.KAFKA_CA_CERT,
   },
   connectionTimeout: 5000,
   retry: { initialRetryTime: 300, retries: 3 },

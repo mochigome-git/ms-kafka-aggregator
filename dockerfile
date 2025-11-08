@@ -1,6 +1,6 @@
 # Dockerfile (multi-stage)
 # Use build args so buildx can set TARGETPLATFORM if needed
-ARG NODE_VERSION=20.19.5
+ARG NODE_VERSION=25
 FROM --platform=$BUILDPLATFORM node:${NODE_VERSION}-alpine AS build
 WORKDIR /app
 COPY package*.json ./
