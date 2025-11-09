@@ -1,28 +1,27 @@
-// utils/healthServer.ts
 import express, { Request, Response } from "express";
 import { testConnection } from "../db/connection";
+import { checkKafka } from "../services/kafkaService";
+import { checkConfigWatcher } from "../realtime/configWatcher";
 import { logger } from "./logger";
 
-export function startHealthServer(port = 8080) {
+export async function startHealthServer(port = 8080) {
   const app = express();
 
   app.get("/health", async (req: Request, res: Response) => {
     try {
       const dbHealthy = await testConnection(1, 1000);
+      const kafkaHealthy = checkKafka();
+      const watcherHealthy = checkConfigWatcher();
 
-      if (dbHealthy) {
-        res.status(200).json({
-          status: "healthy",
-          timestamp: new Date().toISOString(),
-          database: "connected",
-        });
-      } else {
-        res.status(503).json({
-          status: "unhealthy",
-          timestamp: new Date().toISOString(),
-          database: "disconnected",
-        });
-      }
+      const allHealthy = dbHealthy && kafkaHealthy && watcherHealthy;
+
+      res.status(allHealthy ? 200 : 503).json({
+        status: allHealthy ? "healthy" : "unhealthy",
+        timestamp: new Date().toISOString(),
+        database: dbHealthy ? "connected" : "disconnected",
+        kafka: kafkaHealthy ? "connected" : "disconnected",
+        configWatcher: watcherHealthy ? "running" : "stopped",
+      });
     } catch (error: any) {
       res.status(503).json({
         status: "unhealthy",

@@ -7,6 +7,7 @@ import {
 } from "./realtime/configWatcher";
 import { testConnection } from "./db/connection";
 import { startMonitoring, stopMonitoring } from "./services/monitoringService";
+import { startHealthServer } from "./utils/healthServer";
 
 let isShuttingDown = false;
 
@@ -52,6 +53,10 @@ async function initializeServices() {
   await initKafka(configs);
   const watcherStarted = await startConfigWatcher();
   if (!watcherStarted) throw new Error("Failed to start config watcher");
+
+  const port = 8080;
+  const healthServerStarted = await startHealthServer(port);
+  if (!healthServerStarted) throw new Error("Faild to start health server");
 }
 
 async function main() {

@@ -21,6 +21,7 @@ const kafka = new Kafka({
 });
 
 let kafkaConsumer: ReturnType<Kafka["consumer"]> | null = null;
+let kafkaConnected = false;
 
 export async function initKafka(configs: MetricConfig[]) {
   if (kafkaConsumer) {
@@ -39,6 +40,7 @@ export async function initKafka(configs: MetricConfig[]) {
   });
 
   logger.info(`Kafka connected. Listening on topic: ${ENV.KAFKA_TOPIC}`);
+  kafkaConnected = true; // set to true when successfully connected
 
   await kafkaConsumer.run({
     eachMessage: async ({ message }) => {
@@ -91,7 +93,7 @@ export async function initKafka(configs: MetricConfig[]) {
 
 export async function shutdownKafka(): Promise<void> {
   if (!kafkaConsumer) return;
-
+  kafkaConnected = false;
   logger.info("Stopping Kafka consumer...");
   try {
     await kafkaConsumer.disconnect();
@@ -101,4 +103,8 @@ export async function shutdownKafka(): Promise<void> {
     logger.error("Error stopping Kafka consumer:", error);
     throw error;
   }
+}
+
+export function checkKafka() {
+  return kafkaConnected;
 }
