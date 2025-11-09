@@ -1,6 +1,6 @@
 {
   "name": "telemetry-aggregator",
-  "version": "1.0.7",
+  "version": "1.0.11",
   "main": "dist/index.js",
   "scripts": {
     "dev": "ts-node-dev --respawn src/index.ts",
