@@ -9,7 +9,7 @@ const aggregatedPastBuckets = new Map<string, Set<string>>();
 
 export async function aggregatePastTelemetry(
   records: TelemetryRecord[],
-  config: MetricConfig
+  config: MetricConfig,
 ) {
   if (!config.is_active || records.length === 0) return;
 
@@ -34,7 +34,7 @@ export async function aggregatePastTelemetry(
         tenant_id: r.tenant_id,
         device_id: r.device_id,
         machine_id: r.machine_id,
-        bucket_start: bucketStart,
+        created_at: bucketStart,
         count: 0,
         sum1: 0,
         sum2: 0,

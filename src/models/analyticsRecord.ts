@@ -2,7 +2,7 @@ export interface FastAggregatedItem {
   tenant_id: string;
   device_id?: string;
   machine_id?: string;
-  bucket_start: Date;
+  created_at: Date;
   count: number;
   sum1: number;
   sum2: number;

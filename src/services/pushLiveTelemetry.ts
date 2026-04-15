@@ -6,7 +6,7 @@ export const liveBuffers = new Map<string, Map<string, FastAggregatedItem>>();
 
 export function pushLiveTelemetry(
   records: TelemetryRecord[],
-  config: MetricConfig
+  config: MetricConfig,
 ) {
   if (!config.is_active || records.length === 0) return;
 
@@ -20,7 +20,7 @@ export function pushLiveTelemetry(
     const bucketStart = new Date(
       Math.floor(new Date(r.created_at).getTime() / 1000 / interval) *
         interval *
-        1000
+        1000,
     );
     const key = `${r.tenant_id}-${
       r.entity_id || r.device_id
@@ -31,7 +31,7 @@ export function pushLiveTelemetry(
         tenant_id: r.tenant_id,
         device_id: r.device_id,
         machine_id: r.machine_id,
-        bucket_start: bucketStart,
+        created_at: bucketStart,
         count: 1,
         sum1: r.core_1,
         sum2: r.core_2,

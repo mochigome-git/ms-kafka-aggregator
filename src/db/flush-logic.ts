@@ -14,7 +14,7 @@ import { addFlushCount } from "../utils/metricsLogger";
 export async function flushToDB(
   buffer: Map<string, FastAggregatedItem>,
   config: MetricConfig,
-  overwrite: boolean
+  overwrite: boolean,
 ) {
   if (buffer.size === 0) return;
 
@@ -31,32 +31,36 @@ export async function flushToDB(
 
           const query = overwrite
             ? `
-            INSERT INTO analytics.${config.method}_metrics
-              (tenant_id, device_id, machine_id, bucket_start,
-               avg_core_1, avg_core_2, avg_core_3, data, lot_id)
-            VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
-            ON CONFLICT (tenant_id, entity_id, bucket_start)
-            DO UPDATE SET
-              avg_core_1=EXCLUDED.avg_core_1,
-              avg_core_2=EXCLUDED.avg_core_2,
-              avg_core_3=EXCLUDED.avg_core_3,
-              data=EXCLUDED.data,
-              lot_id=EXCLUDED.lot_id;
-          `
+              INSERT INTO analytics.metrics
+                (tenant_id, device_id, machine_id, created_at,
+                 resolution, kind,
+                 avg_core_1, avg_core_2, avg_core_3, data, lot_id)
+              VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)
+              ON CONFLICT (tenant_id, entity_id, resolution, kind, created_at)
+              DO UPDATE SET
+                avg_core_1 = EXCLUDED.avg_core_1,
+                avg_core_2 = EXCLUDED.avg_core_2,
+                avg_core_3 = EXCLUDED.avg_core_3,
+                data       = EXCLUDED.data,
+                lot_id     = EXCLUDED.lot_id;
+            `
             : `
-            INSERT INTO analytics.${config.method}_metrics
-              (tenant_id, device_id, machine_id, bucket_start,
-               avg_core_1, avg_core_2, avg_core_3, data, lot_id)
-            VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
-            ON CONFLICT (tenant_id, entity_id, bucket_start)
-            DO NOTHING;
-          `;
+              INSERT INTO analytics.metrics
+                (tenant_id, device_id, machine_id, created_at,
+                 resolution, kind,
+                 avg_core_1, avg_core_2, avg_core_3, data, lot_id)
+              VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)
+              ON CONFLICT (tenant_id, entity_id, resolution, kind, created_at)
+              DO NOTHING;
+            `;
 
           const values = [
             item.tenant_id,
             item.device_id || null,
             item.machine_id || null,
-            item.bucket_start,
+            item.created_at,
+            config.method, // ← 'fast' | 'hourly'
+            "aggregate", // ← default kind, change to 'aggregate' if needed
             avg1,
             avg2,
             avg3,
@@ -68,15 +72,8 @@ export async function flushToDB(
         }
 
         await client.query("COMMIT");
-        // logger.info(
-        //   `Flushed ${buffer.size} records for ${config.method} (${
-        //     overwrite ? "past" : "live"
-        //   })`
-        // );
-
         addFlushCount(buffer.size, overwrite);
-
-        if (!overwrite) buffer.clear(); // clear live buffer after flush
+        if (!overwrite) buffer.clear();
       } catch (err: any) {
         await client.query("ROLLBACK");
         logger.error(`DB flush failed for ${config.method}: ${err.message}`);
@@ -86,6 +83,6 @@ export async function flushToDB(
       }
     },
     3,
-    1000
+    1000,
   );
 }

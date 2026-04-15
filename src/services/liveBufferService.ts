@@ -31,7 +31,7 @@ export function startLiveFlush(configs: MetricConfig[]) {
       const bucketsToFlush: Map<string, FastAggregatedItem> = new Map();
 
       for (const [key, item] of buffer.entries()) {
-        const bucketEnd = new Date(item.bucket_start.getTime() + intervalMs);
+        const bucketEnd = new Date(item.created_at.getTime() + intervalMs);
 
         if (now >= bucketEnd && !flushedSet.has(key)) {
           bucketsToFlush.set(key, item);
